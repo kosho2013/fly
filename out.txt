@@ -1,0 +1,238 @@
+[[36m2022-07-04 19:16:50,350[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Disabling python warnings! <config.ignore_warnings=True>[0m
+CONFIG
+├── trainer
+│   └── _target_: pytorch_lightning.Trainer                                                                                                                      
+│       accelerator: gpu                                                                                                                                         
+│       min_epochs: 1                                                                                                                                            
+│       max_epochs: 310                                                                                                                                          
+│       progress_bar_refresh_rate: 5                                                                                                                             
+│       devices: 1                                                                                                                                               
+│       accumulate_grad_batches: 8                                                                                                                               
+│       precision: 16                                                                                                                                            
+│       gradient_clip_val: 1.0                                                                                                                                   
+│                                                                                                                                                                
+├── model
+│   └── channel_mlp_cfg:                                                                                                                                         
+│         _target_: src.models.modules.layers.mlp.MlpCustom                                                                                                      
+│         linear1_cfg:                                                                                                                                           
+│           _target_: src.models.modules.layers.fastlinear.SparseLRLinear                                                                                        
+│           rank: 32                                                                                                                                             
+│           sparse_cfg:                                                                                                                                          
+│             _target_: src.models.modules.layers.blocksparse_linear.BlockSparseLinear                                                                           
+│             sparsity_config:                                                                                                                                   
+│               _target_: src.models.modules.layers.blocksparse_linear.FlatBlockButterflySparsityConfig                                                          
+│               block: 32                                                                                                                                        
+│               butterfly_size: 8                                                                                                                                
+│               n_factors: 1                                                                                                                                     
+│             backend: dense                                                                                                                                     
+│         linear2_cfg:                                                                                                                                           
+│           _target_: src.models.modules.layers.fastlinear.SparseLRLinear                                                                                        
+│           rank: 32                                                                                                                                             
+│           sparse_cfg:                                                                                                                                          
+│             _target_: src.models.modules.layers.blocksparse_linear.BlockSparseLinear                                                                           
+│             sparsity_config:                                                                                                                                   
+│               _target_: src.models.modules.layers.blocksparse_linear.FlatBlockButterflySparsityConfig                                                          
+│               block: 32                                                                                                                                        
+│               butterfly_size: 8                                                                                                                                
+│               n_factors: 1                                                                                                                                     
+│             backend: dense                                                                                                                                     
+│       _target_: src.models.mlp_mixer.mixer_b16_224                                                                                                             
+│       drop_rate: 0.0                                                                                                                                           
+│       drop_path_rate: 0.0                                                                                                                                      
+│                                                                                                                                                                
+├── datamodule
+│   └── _target_: src.datamodules.imagenet.ImagenetDataModule                                                                                                    
+│       data_dir: /home/user/myfiles/imagenet/                                                                                                                   
+│       shuffle: true                                                                                                                                            
+│       batch_size: 128                                                                                                                                          
+│       num_workers: 8                                                                                                                                           
+│       pin_memory: true                                                                                                                                         
+│       image_size: 224                                                                                                                                          
+│       train_transforms:                                                                                                                                        
+│         _target_: timm.data.create_transform                                                                                                                   
+│         input_size: 224                                                                                                                                        
+│         is_training: true                                                                                                                                      
+│         auto_augment: rand-m15-n2                                                                                                                              
+│         interpolation: random                                                                                                                                  
+│       val_transforms:                                                                                                                                          
+│         _target_: timm.data.create_transform                                                                                                                   
+│         input_size: 224                                                                                                                                        
+│         interpolation: bicubic                                                                                                                                 
+│         crop_pct: 0.875                                                                                                                                        
+│       test_transforms:                                                                                                                                         
+│         _target_: timm.data.create_transform                                                                                                                   
+│         input_size: 224                                                                                                                                        
+│         interpolation: bicubic                                                                                                                                 
+│         crop_pct: 0.875                                                                                                                                        
+│                                                                                                                                                                
+├── train
+│   └── optimizer:                                                                                                                                               
+│         _target_: torch.optim.AdamW                                                                                                                            
+│         lr: 0.002                                                                                                                                              
+│         weight_decay: 0.05                                                                                                                                     
+│       global_batch_size: 1024                                                                                                                                  
+│       optimizer_param_grouping:                                                                                                                                
+│         bias_weight_decay: false                                                                                                                               
+│         normalization_weight_decay: false                                                                                                                      
+│       scheduler:                                                                                                                                               
+│         _target_: src.optim.timm_lr_scheduler.TimmCosineLRScheduler                                                                                            
+│         t_initial: 300                                                                                                                                         
+│         lr_min: 1.0e-05                                                                                                                                        
+│         warmup_lr_init: 0.0001                                                                                                                                 
+│         warmup_t: 10                                                                                                                                           
+│         cycle_limit: 1                                                                                                                                         
+│       scheduler_interval: epoch                                                                                                                                
+│       cooldown_epochs: 10                                                                                                                                      
+│       mixup:                                                                                                                                                   
+│         _target_: src.datamodules.timm_mixup.TimmMixup                                                                                                         
+│         mixup_alpha: 0.5                                                                                                                                       
+│         label_smoothing: 0.1                                                                                                                                   
+│         cutmix_alpha: 0.6                                                                                                                                      
+│       loss_fn:                                                                                                                                                 
+│         _target_: torch.nn.CrossEntropyLoss                                                                                                                    
+│       loss_fn_val:                                                                                                                                             
+│         _target_: torch.nn.CrossEntropyLoss                                                                                                                    
+│                                                                                                                                                                
+├── eval
+│   └── metrics:                                                                                                                                                 
+│         acc:                                                                                                                                                   
+│           _target_: torchmetrics.Accuracy                                                                                                                      
+│         acctop5:                                                                                                                                               
+│           _target_: torchmetrics.Accuracy                                                                                                                      
+│           top_k: 5                                                                                                                                             
+│                                                                                                                                                                
+├── callbacks
+│   └── rich_model_summary:                                                                                                                                      
+│         _target_: pytorch_lightning.callbacks.RichModelSummary                                                                                                 
+│       model_checkpoint:                                                                                                                                        
+│         _target_: pytorch_lightning.callbacks.ModelCheckpoint                                                                                                  
+│         monitor: val/acc                                                                                                                                       
+│         mode: max                                                                                                                                              
+│         save_top_k: 1                                                                                                                                          
+│         save_last: true                                                                                                                                        
+│         verbose: false                                                                                                                                         
+│         dirpath: checkpoints/None                                                                                                                              
+│         filename: epoch_{epoch:03d}                                                                                                                            
+│         auto_insert_metric_name: false                                                                                                                         
+│       early_stopping:                                                                                                                                          
+│         _target_: pytorch_lightning.callbacks.EarlyStopping                                                                                                    
+│         monitor: val/acc                                                                                                                                       
+│         mode: max                                                                                                                                              
+│         patience: 100                                                                                                                                          
+│         min_delta: 0                                                                                                                                           
+│       learning_rate_monitor:                                                                                                                                   
+│         _target_: pytorch_lightning.callbacks.LearningRateMonitor                                                                                              
+│         logging_interval: step                                                                                                                                 
+│       speed_monitor:                                                                                                                                           
+│         _target_: src.callbacks.speed_monitor.SpeedMonitor                                                                                                     
+│         intra_step_time: true                                                                                                                                  
+│         inter_step_time: true                                                                                                                                  
+│         epoch_time: true                                                                                                                                       
+│       params_log:                                                                                                                                              
+│         _target_: src.callbacks.params_log.ParamsLog                                                                                                           
+│         total_params_log: true                                                                                                                                 
+│         trainable_params_log: true                                                                                                                             
+│         non_trainable_params_log: true                                                                                                                         
+│                                                                                                                                                                
+├── logger
+│   └── wandb:                                                                                                                                                   
+│         _target_: pytorch_lightning.loggers.wandb.WandbLogger                                                                                                  
+│         project: attention                                                                                                                                     
+│         name: null                                                                                                                                             
+│         save_dir: .                                                                                                                                            
+│         offline: false                                                                                                                                         
+│         id: null                                                                                                                                               
+│         log_model: false                                                                                                                                       
+│         prefix: ''                                                                                                                                             
+│         job_type: train                                                                                                                                        
+│         group: ''                                                                                                                                              
+│         tags: []                                                                                                                                               
+│                                                                                                                                                                
+├── seed
+│   └── 1111                                                                                                                                                     
+└── name
+    └── None                                                                                                                                                     
+[[36m2022-07-04 19:16:50,422[0m][[34mpytorch_lightning.utilities.seed[0m][[32mINFO[0m] - Global seed set to 1111[0m
+[[36m2022-07-04 19:16:50,464[0m][[34msrc.tasks.seq[0m][[32mINFO[0m] - Instantiating datamodule <src.datamodules.imagenet.ImagenetDataModule>[0m
+[[36m2022-07-04 19:16:57,087[0m][[34msrc.tasks.seq[0m][[32mINFO[0m] - Instantiating model <src.models.mlp_mixer.mixer_b16_224>[0m
+[[36m2022-07-04 19:16:57,183[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - pytorch_block_sparse is not installed[0m
+[[36m2022-07-04 19:16:57,198[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,200[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,217[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,218[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,241[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,242[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,257[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,259[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,279[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,281[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,294[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,295[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,317[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,318[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,332[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,333[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,354[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,356[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,370[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,372[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,392[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,393[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,408[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,409[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,430[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,431[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,444[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,446[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,466[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,468[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,481[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,483[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,503[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,505[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,520[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,521[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,543[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,544[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,561[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,562[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,584[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,586[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,603[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,605[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,627[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,629[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,647[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.blocksparse_linear.BlockSparseLinear'>: saving=0.25[0m
+[[36m2022-07-04 19:16:57,649[0m][[34msrc.utils.utils[0m][[32mINFO[0m] - Linear class <class 'src.models.modules.layers.fastlinear.SparseLRLinear'>: saving=0.3020833333333333[0m
+[[36m2022-07-04 19:16:57,693[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <pytorch_lightning.callbacks.RichModelSummary>[0m
+[[36m2022-07-04 19:16:57,694[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <pytorch_lightning.callbacks.ModelCheckpoint>[0m
+[[36m2022-07-04 19:16:57,695[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <pytorch_lightning.callbacks.EarlyStopping>[0m
+[[36m2022-07-04 19:16:57,696[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <pytorch_lightning.callbacks.LearningRateMonitor>[0m
+[[36m2022-07-04 19:16:57,697[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <src.callbacks.speed_monitor.SpeedMonitor>[0m
+[[36m2022-07-04 19:16:57,698[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating callback <src.callbacks.params_log.ParamsLog>[0m
+[[36m2022-07-04 19:16:57,700[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating logger <pytorch_lightning.loggers.wandb.WandbLogger>[0m
+[[36m2022-07-04 19:16:57,701[0m][[34msrc.train[0m][[32mINFO[0m] - Instantiating trainer <pytorch_lightning.Trainer>[0m
+[[36m2022-07-04 19:16:57,752[0m][[34mpytorch_lightning.utilities.distributed[0m][[32mINFO[0m] - Using 16bit native Automatic Mixed Precision (AMP)[0m
+[[36m2022-07-04 19:16:57,754[0m][[34mpytorch_lightning.utilities.distributed[0m][[32mINFO[0m] - Trainer already configured with model summary callbacks: [<class 'pytorch_lightning.callbacks.rich_model_summary.RichModelSummary'>]. Skipping setting a default `ModelSummary` callback.[0m
+[[36m2022-07-04 19:16:57,754[0m][[34mpytorch_lightning.utilities.distributed[0m][[32mINFO[0m] - GPU available: True, used: True[0m
+[[36m2022-07-04 19:16:57,754[0m][[34mpytorch_lightning.utilities.distributed[0m][[32mINFO[0m] - TPU available: False, using: 0 TPU cores[0m
+[[36m2022-07-04 19:16:57,755[0m][[34mpytorch_lightning.utilities.distributed[0m][[32mINFO[0m] - IPU available: False, using: 0 IPUs[0m
+[[36m2022-07-04 19:16:57,755[0m][[34msrc.train[0m][[32mINFO[0m] - Starting training![0m
+[[36m2022-07-04 19:16:57,764[0m][[34msrc.tasks.seq[0m][[32mINFO[0m] - Model Already initialized[0m
+[[36m2022-07-04 19:16:57,765[0m][[34mpytorch_lightning.accelerators.gpu[0m][[32mINFO[0m] - LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0][0m
+
+┏━━━┳━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━┓
+┃[1;35m [0m[1;35m [0m[1;35m [0m┃[1;35m [0m[1;35mName         [0m[1;35m [0m┃[1;35m [0m[1;35mType            [0m[1;35m [0m┃[1;35m [0m[1;35mParams[0m[1;35m [0m┃
+┡━━━╇━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━┩
+│[2m [0m[2m0[0m[2m [0m│ model         │ MlpMixer         │ 20.4 M │
+│[2m [0m[2m1[0m[2m [0m│ loss_fn       │ CrossEntropyLoss │      0 │
+│[2m [0m[2m2[0m[2m [0m│ loss_fn_val   │ CrossEntropyLoss │      0 │
+│[2m [0m[2m3[0m[2m [0m│ train_metrics │ MetricCollection │      0 │
+│[2m [0m[2m4[0m[2m [0m│ val_metrics   │ MetricCollection │      0 │
+│[2m [0m[2m5[0m[2m [0m│ test_metrics  │ MetricCollection │      0 │
+└───┴───────────────┴──────────────────┴────────┘
+[1mTrainable params[0m: 20.4 M                                                                                                                                         
+[1mNon-trainable params[0m: 0                                                                                                                                          
+[1mTotal params[0m: 20.4 M                                                                                                                                             
+[1mTotal estimated model params size (MB)[0m: 40                                                                                                                       
+Validation sanity check: 0it [00:00, ?it/s]Validation sanity check:   0%|                                                                                                             | 0/2 [00:00<?, ?it/s]
