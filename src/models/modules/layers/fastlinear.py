@@ -745,7 +745,9 @@ class SparseLRLinear(nn.Module):
         
         sparse_output = self.sparse(x)
         low_rank_output = self.low_rank(x)
+        low_rank_output = low_rank_output.float()
         g = torch.sigmoid(self.gate(x)) if self.gate is not None else 0.5
+        g = g.float()
         # output = (1.0 - g) * sparse_output + g * low_rank_output
         
         
