@@ -1,6 +1,6 @@
 # Inspired by https://github.com/anibali/docker-pytorch/blob/master/dockerfiles/1.5.0-cuda10.2-ubuntu18.04/Dockerfile
 # Need cudnn for tvm
-FROM nvidia/cuda:10.2-cudnn7-devel-ubuntu18.04
+FROM nvidia/cuda:10.2-cudnn8-devel-ubuntu18.04
 CMD nvidia-smi
 #FROM nvidia/cuda:11.3.1-cudnn8-devel-ubuntu20.04
 ARG PYTHON_VERSION=3.8
