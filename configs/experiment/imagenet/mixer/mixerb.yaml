@@ -7,7 +7,7 @@ defaults:
   - /experiment/imagenet/mixer/mixers.yaml
 
 model:
-  _target_: src.models.mlp_mixer.mixer_b16_224
+  _target_: src.models.mlp_mixer.mixer_s32_224
 
 datamodule:
   batch_size: 128
