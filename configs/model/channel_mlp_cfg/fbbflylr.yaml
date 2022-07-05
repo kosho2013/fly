@@ -9,5 +9,5 @@ linear1_cfg:
       block: 32
       butterfly_size: 8
       n_factors: 1
-    backend: huggingface
+    backend: triton
 linear2_cfg: ${.linear1_cfg}
