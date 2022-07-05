@@ -13,6 +13,6 @@ datamodule:
   batch_size: 1
 
 train:
-  global_batch_size: 1
+  global_batch_size: 128
   optimizer:
     lr: 2e-3
