@@ -63,8 +63,8 @@ class BlockSparseLinear(nn.Module):
         if backend not in ['huggingface', 'triton', 'dense']:
             raise NotImplementedError(f'backend {backend} not supported')
         if backend == 'huggingface':
-            if self.block_size != 32:
-                raise NotImplementedError(f'backend huggingface requires block size to be 32')
+            # if self.block_size != 32:
+                # raise NotImplementedError(f'backend huggingface requires block size to be 32')
             if BlockSparseLinearFunction is None or BlockSparseMatrix is None:
                 raise ImportError(f'backend huggingface but package pytorch_block_sparse cannot be imported')
         self.backend = backend
