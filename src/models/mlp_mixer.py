@@ -384,6 +384,8 @@ def mixer_s32_224(pretrained=False, **kwargs):
     """ Mixer-S/32 224x224
     Paper: 'MLP-Mixer: An all-MLP Architecture for Vision' - https://arxiv.org/abs/2105.01601
     """
+    print("\n\n\n\n\n\n\n\n\n\n\n aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa \n\n\n\n\n\n\n\n\n\n\n\n\n")
+    
     model_args = dict(patch_size=32, num_blocks=8, embed_dim=512, **kwargs)
     model = _create_mixer('mixer_s32_224', pretrained=pretrained, **model_args)
     return model
@@ -394,6 +396,7 @@ def mixer_s16_224(pretrained=False, **kwargs):
     """ Mixer-S/16 224x224
     Paper:  'MLP-Mixer: An all-MLP Architecture for Vision' - https://arxiv.org/abs/2105.01601
     """
+    print("\n\n\n\n\n\n\n\n\n\n\n bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb \n\n\n\n\n\n\n\n\n\n\n\n\n")
     model_args = dict(patch_size=16, num_blocks=8, embed_dim=512, **kwargs)
     model = _create_mixer('mixer_s16_224', pretrained=pretrained, **model_args)
     return model

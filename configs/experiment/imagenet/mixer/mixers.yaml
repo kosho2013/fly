@@ -28,8 +28,8 @@ trainer:
   gradient_clip_val: 1.0
 
 datamodule:
-  batch_size: 512  # Per GPU
-  num_workers: 8  # Per GPU
+  batch_size: 128  # Per GPU
+  num_workers: 1  # Per GPU
   image_size: 224
   train_transforms:
     _target_: timm.data.create_transform
