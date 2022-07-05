@@ -7,7 +7,7 @@ linear1_cfg:
     sparsity_config:
       _target_: src.models.modules.layers.blocksparse_linear.FlatBlockButterflySparsityConfig
       block: 32
-      butterfly_size: 16
+      butterfly_size: 8
       n_factors: 1
     backend: huggingface
 linear2_cfg: ${.linear1_cfg}
