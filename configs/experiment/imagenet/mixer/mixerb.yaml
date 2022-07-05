@@ -10,9 +10,9 @@ model:
   _target_: src.models.mlp_mixer.mixer_s32_224
 
 datamodule:
-  batch_size: 128
+  batch_size: 1
 
 train:
-  global_batch_size: 1024
+  global_batch_size: 1
   optimizer:
     lr: 2e-3

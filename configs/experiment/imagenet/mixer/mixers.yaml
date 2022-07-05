@@ -28,7 +28,7 @@ trainer:
   gradient_clip_val: 1.0
 
 datamodule:
-  batch_size: 128  # Per GPU
+  batch_size: 1  # Per GPU
   num_workers: 1  # Per GPU
   image_size: 224
   train_transforms:
@@ -45,7 +45,7 @@ datamodule:
   test_transforms: ${.val_transforms}
 
 train:
-  global_batch_size: 4096
+  global_batch_size: 1
   optimizer:
     lr: 2e-3
     weight_decay: 0.1
