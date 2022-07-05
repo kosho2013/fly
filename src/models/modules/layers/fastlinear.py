@@ -739,7 +739,10 @@ class SparseLRLinear(nn.Module):
         return self.sparse.saving + self.low_rank.saving
 
     def _multiply(self, x):
-        x = float(x)
+        print('\n\n\n\n\n\n\n\n\n\n\n\n\n', type(x), '\n\n\n\n\n\n\n\n\n\n\n\n\n')
+        
+        
+        
         sparse_output = self.sparse(x)
         low_rank_output = self.low_rank(x)
         g = torch.sigmoid(self.gate(x)) if self.gate is not None else 0.5
