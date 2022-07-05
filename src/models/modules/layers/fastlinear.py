@@ -739,7 +739,7 @@ class SparseLRLinear(nn.Module):
         return self.sparse.saving + self.low_rank.saving
 
     def _multiply(self, x):
-        print('\n\n\n\n\n\n\n\n\n\n\n\n\n', type(x), x.dtype, x.get_device() '\n\n\n\n\n\n\n\n\n\n\n\n\n')
+        print('\n\n\n\n\n\n\n\n\n\n\n\n\n', type(x), x.dtype, x.get_device(), '\n\n\n\n\n\n\n\n\n\n\n\n\n')
         
         
         
