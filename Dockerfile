@@ -129,7 +129,6 @@ RUN pip install 'tensorboard>=2.3.0' 'tensorflow-cpu>=2.3.1' 'tensorflow-dataset
 # This is for swin repo
 RUN pip install 'yacs==0.1.8'
 
-RUN which python
-RUN which python3
+RUN pip install pytorch-block-sparse
 
 
